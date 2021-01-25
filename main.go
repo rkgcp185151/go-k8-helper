@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	//
@@ -32,6 +33,10 @@ func main() {
 	}
 	flag.Parse()
 
+	//if kubeconfig is empty try env vars
+	//*kubeconfig = os.Getenv("KUBECONFIG")
+	*kubeconfig = "./sample-config/emerald-edge-kubeconfig.yaml"
+	fmt.Printf("kubeconfig value is: %s", *kubeconfig)
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
@@ -50,11 +55,15 @@ func main() {
 		}
 		fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 
+		for i := 0; i < len(pods.Items); i++ {
+			fmt.Printf("pod name: %s\n", pods.Items[i].Name)
+		}
+
 		// Examples for error handling:
 		// - Use helper functions like e.g. errors.IsNotFound()
 		// - And/or cast to StatusError and use its properties like e.g. ErrStatus.Message
-		namespace := "kube-system"
-		pod := "kube-xxxxx"
+		namespace := "mesh-test"
+		pod := "my-nginx-6ff7745b59-z4h2z"
 		_, err = clientset.CoreV1().Pods(namespace).Get(context.TODO(), pod, metav1.GetOptions{})
 		if errors.IsNotFound(err) {
 			fmt.Printf("Pod %s in namespace %s not found\n", pod, namespace)

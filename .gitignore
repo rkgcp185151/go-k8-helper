@@ -14,3 +14,5 @@ debug
 *.out
 
 app
+emerald-edge-kubeconfig.yaml
+.DS_Store
